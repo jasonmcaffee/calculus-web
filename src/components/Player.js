@@ -56,7 +56,7 @@ export default class Player {
       signal.trigger(ec.hitTest.updateComponentHitBox, {component:this});
     },
     [ec.stage.mouseClickedOnStage]({camera, cameraPosition, clientX, clientY, projector, width, height, cursorX, cursorY}){
-      this.fireBullet({camera, cameraPosition, projector, clientX, clientY, width, height, cursorX, cursorY});
+      this.fireBulletNEW({camera, cameraPosition, projector, clientX, clientY, width, height, cursorX, cursorY});
     },
     [ec.cursor.mousexyzChanged]({x, y, z, direction}){
       this.mouseVector = new Vector3(x, y, z);
@@ -87,7 +87,7 @@ export default class Player {
     }.bind(this), intervalMs);
   }
 
-  fireBullet({camera, cameraPosition, projector, clientX, clientY, width, height, cursorX, cursorY}){
+  fireBulletNEW({camera, cameraPosition, projector, clientX, clientY, width, height, cursorX, cursorY}){
     if(!this.mouseDirection){return;}
     let direction = this.mouseDirection;
     let startPosition = this.mouseVector;
@@ -96,21 +96,21 @@ export default class Player {
     signal.trigger(ec.stage.addComponent, {component:bullet});
   }
 
-  fireBulletOLD({camera, cameraPosition, projector, clientX, clientY, width, height, cursorX, cursorY}){
-
-    // let mouseX = (clientX / width) * 2 - 1;
-    // let mouseY = - (clientY / height) * 2 + 1;
-    let mouseX = cursorX;
-    let mouseY = cursorY;
-    let mouseVector = new Vector3(mouseX, mouseY, 1);
-    projector.unprojectVector(mouseVector, camera);
-
-    let direction = mouseVector.sub(cameraPosition).normalize();
-    let startPosition = cameraPosition.clone();
-
-    let bullet = new Bullet({direction, startPosition, hitExclusionComponentId:this.componentId});
-    signal.trigger(ec.stage.addComponent, {component:bullet});
-  }
+  // fireBullet({camera, cameraPosition, projector, clientX, clientY, width, height, cursorX, cursorY}){
+  //
+  //   // let mouseX = (clientX / width) * 2 - 1;
+  //   // let mouseY = - (clientY / height) * 2 + 1;
+  //   let mouseX = cursorX;
+  //   let mouseY = cursorY;
+  //   let mouseVector = new Vector3(mouseX, mouseY, 1);
+  //   projector.unprojectVector(mouseVector, camera);
+  //
+  //   let direction = mouseVector.sub(cameraPosition).normalize();
+  //   let startPosition = cameraPosition.clone();
+  //
+  //   let bullet = new Bullet({direction, startPosition, hitExclusionComponentId:this.componentId});
+  //   signal.trigger(ec.stage.addComponent, {component:bullet});
+  // }
 
   render() {
     this.hitBox = new Box3().setFromObject(this.threejsObject); //allow for moving box

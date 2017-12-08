@@ -56,18 +56,21 @@ let controls = {
     this.clientX += movementX;
     this.clientY += movementY;
 
+    this.movementX = movementX;
+    this.movementY = movementY;
 
   },
 
   calculateCursorPositionAndSignal({height=window.innerHeight, width=window.innerWidth}={}){
     this.cursorX = (this.clientX /width) * 2 - 1;
     this.cursorY = - (this.clientY /height) * 2 + 1;
-    signal.trigger(ec.mouse.move, {mouseX:this.mouseX, mouseY:this.mouseY, clientX:this.clientX, clientY:this.clientY, cursorX:this.cursorX, cursorY:this.cursorY});
+    signal.trigger(ec.mouse.move, {mouseX:this.mouseX, mouseY:this.mouseY, clientX:this.clientX,
+      clientY:this.clientY, cursorX:this.cursorX, cursorY:this.cursorY, movementX:this.movementX, movementY:this.movementY});
   },
 
   signals:{
     [ec.webgl.performFrameCalculations]({clock=moveClock}={}){
-      this.performLookAtBasedOnMouseMovement();
+      //this.performLookAtBasedOnMouseMovement();
       this.performMovementBasedOnKeysPressed({clock});
       this.calculateCursorPositionAndSignal();
     }

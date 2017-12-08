@@ -26,14 +26,18 @@ export default class StageOne {
     console.log('signals: ' + JSON.stringify(signal.getSignalIds()));
   }
 
+  /**
+   * Setup camera, scene, etc
+   */
   initThreeJs(){
     let {width, height} = this.getScreenDimensions();
     let camera = this.camera = new PerspectiveCamera( 70, width / height, 1, 700 );
     signal.trigger(ec.camera.setPosition, {x:0, y:0, z:0});
     signal.trigger(ec.camera.setLookAt, {x:0, y:0, z:0});
+    //camera.rotation.set(0,0,0);//for Cursor
 
     let scene = this.scene = new Scene();
-    this.addToScene({scene});
+    this.addToScene({scene, camera});
 
     this.renderer = new WebGLRenderer( { antialias: true } );
     this.renderer.setSize(width, height);
@@ -44,9 +48,9 @@ export default class StageOne {
 
 
 
-  addComponent({component, scene=this.scene, children=this.children}){
+  addComponent({component, scene=this.scene, children=this.children, camera=this.camera}){
     children.push(component);
-    component.addToScene({scene});
+    component.addToScene({scene, camera});
   }
   signals = {
     [ec.camera.setPosition]({x, y, z}){
@@ -64,28 +68,28 @@ export default class StageOne {
       signal.trigger(ec.camera.setLookAt, {x,y,z});
     },
     [ec.camera.moveMultiDirection](multiMovesEventData){
-      //let {x, y, z} = this.camera.position;
-      let moveDownAmount = multiMovesEventData[ec.camera.moveDown] || 0;
-      let moveUpAmount = multiMovesEventData[ec.camera.moveUp] || 0;
-      let moveLeftAmount = multiMovesEventData[ec.camera.moveLeft] || 0;
-      let moveRightAmount = multiMovesEventData[ec.camera.moveRight] || 0;
-      let moveForwardAmount = multiMovesEventData[ec.camera.moveForward] || 0;
-      let moveBackwardAmount = multiMovesEventData[ec.camera.moveBackward] || 0;
-
-      let zAmount =  moveBackwardAmount - moveForwardAmount;
-      this.camera.translateZ(zAmount);
-
-      let xAmount = moveRightAmount - moveLeftAmount;
-      this.camera.translateX(xAmount);
-
-      let yAmount = moveUpAmount - moveDownAmount;
-      this.camera.translateY(yAmount);
-
-      //his.camera.position.set(x, y, z);
-      let {x:newX, y:newY, z:newZ} = this.camera.position;
-
-
-      signal.trigger(ec.camera.positionChanged, {x:newX, y:newY, z:newZ, camera:this.camera, xAmount, yAmount, zAmount});
+      // //let {x, y, z} = this.camera.position;
+      // let moveDownAmount = multiMovesEventData[ec.camera.moveDown] || 0;
+      // let moveUpAmount = multiMovesEventData[ec.camera.moveUp] || 0;
+      // let moveLeftAmount = multiMovesEventData[ec.camera.moveLeft] || 0;
+      // let moveRightAmount = multiMovesEventData[ec.camera.moveRight] || 0;
+      // let moveForwardAmount = multiMovesEventData[ec.camera.moveForward] || 0;
+      // let moveBackwardAmount = multiMovesEventData[ec.camera.moveBackward] || 0;
+      //
+      // let zAmount =  moveBackwardAmount - moveForwardAmount;
+      // this.camera.translateZ(zAmount);
+      //
+      // let xAmount = moveRightAmount - moveLeftAmount;
+      // this.camera.translateX(xAmount);
+      //
+      // let yAmount = moveUpAmount - moveDownAmount;
+      // this.camera.translateY(yAmount);
+      //
+      // //his.camera.position.set(x, y, z);
+      // let {x:newX, y:newY, z:newZ} = this.camera.position;
+      //
+      //
+      // signal.trigger(ec.camera.positionChanged, {x:newX, y:newY, z:newZ, camera:this.camera, xAmount, yAmount, zAmount});
 
     },
 
@@ -154,15 +158,15 @@ export default class StageOne {
     }
   }
 
-  addToScene({scene}) {
-    this.addChildrenToScene({scene});
+  addToScene({scene, camera}) {
+    this.addChildrenToScene({scene, camera});
   }
 
-  addChildrenToScene({children=this.children, scene}={}){
+  addChildrenToScene({children=this.children, scene, camera}={}){
     //this.children.forEach(c=>c.addToScene({scene}));
     let length = children.length - 1;
     while(length >= 0){
-      children[length--].addToScene({scene});
+      children[length--].addToScene({scene, camera});
     }
   }
 
