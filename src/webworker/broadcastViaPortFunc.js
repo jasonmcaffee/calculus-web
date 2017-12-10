@@ -18,18 +18,10 @@ export default function broadcastViaPortFunc(){
     port = port;
   }
   function destroy(){
-
+    port = undefined;
   }
 
-  function postMessageToRandomWorker(subWorkerData){
-    let min = 0;
-    let max = workers.length;
-    let randomIndex = generateRandomNumber({min, max});
-    let worker = workers[randomIndex];
-    worker.postMessage(subWorkerData);
-  }
-
-  function postMessageToWorkers(subWorkerData){
+  function postMessageToPort(subWorkerData){
     if(!port){return console.error(`broadcastViaPortFunc has not been initialized with a port.`);}
     port.postMessage(subWorkerData);
   }
@@ -44,12 +36,8 @@ export default function broadcastViaPortFunc(){
     let command = data.command;
     let subWorkerData = data.data;
     switch(command){
-      case 'postMessageToWorkers':{ //e.g. update positions
-        postMessageToWorkers(subWorkerData);
-        break;
-      }
-      case 'postMessageToRandomWorker':{
-        postMessageToRandomWorker(subWorkerData);
+      case 'postMessageToPort':{ //e.g. update positions
+        postMessageToPort(subWorkerData);
         break;
       }
       case 'intialize':{
@@ -61,7 +49,7 @@ export default function broadcastViaPortFunc(){
         break;
       }
       default:{
-        console.log(`web worker orchestrator did not recognize command ${command}`);
+        console.log(`broadcastViaPortFunc did not recognize command ${command}`);
       }
     }
   }
