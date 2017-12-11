@@ -7,6 +7,7 @@ export default function hitTestWorkerFunc(){
   importScripts('https://cdnjs.cloudflare.com/ajax/libs/three.js/88/three.js');
   let {Box3} = THREE;
   let hittableWebWorkerHitBoxes = [];
+  let p; //MessageChannel port we receive messages other than initialize on.
 
   //performs hit tests agains all boxes
   function performHitTest({requestId, webWorkerHitBox1, webWorkerHitBoxes=hittableWebWorkerHitBoxes}){
@@ -58,15 +59,25 @@ export default function hitTestWorkerFunc(){
     }
   }
 
+  function intialize({port}){
+    if(!port){console.error(`hitTestWorkerFunc was not initialized with a port`);}
+    p = port;
+    p.onmessage = onmessage;
+  }
+
   function destroy(){
     hittableWebWorkerHitBoxes = [];
   }
 
-  onmessage = function(e){
+  //postMessage and port.postMessage will end up here.
+  function onmessage(e){
     let data = e.data;
     let command = data.command;
 
     switch(command){
+      case 'initialize':{
+        intialize(data);
+      }
       case 'performHitTest':{
         performHitTest(data);
         break;
@@ -92,4 +103,6 @@ export default function hitTestWorkerFunc(){
       }
     }
   }
+
+  onmessage = onmessage
 }
