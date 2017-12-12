@@ -56,9 +56,10 @@ export default class Cursor{
     var dir = vector.sub( camera.position ).normalize();
     var distance = 2;//- camera.position.z / dir.z;
     var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
+
     this.threejsObject.position.copy(pos);
-    //console.log(`new position ${JSON.stringify(this.threejsObject.position)}`);
     let {x, y, z} = this.threejsObject.position;
+
     signal.trigger(ec.cursor.mousexyzChanged, {x, y, z, direction:dir});
 
   }

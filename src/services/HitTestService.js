@@ -19,7 +19,7 @@ let webWorkerResultCommands = {
 export default class HitTestService{
   destroyFuncs=[]
   hitTestOrchestrator
-  constructor({signal, numberOfSubWorkers=3}){
+  constructor({signal, numberOfSubWorkers=10}){
     this.signal=signal;
     signal.registerSignals(this);
     this.destroyFuncs.push(function(){
@@ -70,7 +70,7 @@ export default class HitTestService{
   }
 
   signals = {
-    [ec.hitTest.performHitTest]({hitteeComponent, requestId, hitTestWorker=this.hitTestWorker}){
+    [ec.hitTest.performHitTest]({hitteeComponent, requestId}){
       //console.log(`HitTestService received request to perform hit test`);
       let webWorkerHitBox1 = createWebWorkerHitBoxFromComponent({component: hitteeComponent});
       let webWorkerRequest = {command: webWorkerCommands.performHitTest, webWorkerHitBox1};

@@ -85,7 +85,7 @@ export default class Orchestrator{
   //when subWorkers post a message, we will fire our onmessage callback so others can subscribe to Orchestrator as they
   //would a web worker.
   handleSubWorkerResponse(data){
-    console.log(`orchestrator received response from subWorker: `, data);
+    //console.log(`orchestrator received response from subWorker: `, data);
     this.onmesssage(data);
   }
 
