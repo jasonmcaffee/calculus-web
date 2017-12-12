@@ -1,6 +1,7 @@
 import {eventConfig as ec} from 'core/eventConfig';
 import {NewWorker} from "webworker/WebWorker";
 import hitTestWorkerFunc from 'webworker/hitTestWorkerFunc';
+import Orchestrator from 'webworker/Orchestrator';
 
 //events
 let webWorkerCommands = {
@@ -18,29 +19,21 @@ let webWorkerResultCommands = {
 export default class HitTestService{
   hitTestWorkers=[]
   destroyFuncs=[]
+  hitTestOrchestrator
   constructor({signal, numberOfSubWorkers=3}){
-    this.hitTestWorker = NewWorker(hitTestWorkerFunc);
     this.signal=signal;
     signal.registerSignals(this);
     this.destroyFuncs.push(function(){
       signal.unregisterSignals(this);
     }.bind(this));
 
-    this.createHitTestWorkers({numberOfSubWorkers});
-  }
+    this.hitTestOrchestrator = new Orchestrator({
+      subWorkerFunc:hitTestWorkerFunc,
+      numberOfSubWorkersToCreate:numberOfSubWorkers,
+      onmessage:this.handleSubWorkerResultMessage.bind(this)
+    });
 
-  createHitTestWorkers({workerFunc=hitTestWorkerFunc, signal=this.signal, numberOfSubWorkers=2, hitTestWorkers=this.hitTestWorkers}={}){
-    let handleSubWorkerResult = this.handleSubWorkerResultMessage.bind(this);
-    for(let i =0; i < numberOfSubWorkers; ++i){
-      let worker = this.createHitTestWorker({signal, workerFunc, handleSubWorkerResult});
-      hitTestWorkers.push(worker);
-    }
-  }
 
-  createHitTestWorker({workerFunc=hitTestWorkerFunc, signal=this.signal, handleSubWorkerResult}={}){
-    let worker = NewWorker(workerFunc);
-    worker.onmessage = handleSubWorkerResult;
-    return worker;
   }
 
   handleSubWorkerResultMessage(e){
@@ -59,19 +52,12 @@ export default class HitTestService{
 
   //for things like updating hittableComponent's position.
   postMessageToAllSubWorkers(message){
-    for(let i=0, len=this.hitTestWorkers.length; i < len; ++i){
-      let worker = this.hitTestWorkers[i];
-      worker.postMessage(message);
-    }
+    this.hitTestOrchestrator.postMessageToAllSubWorkers(message);
   }
 
   //for things like hit test for a bullet.
   postMessageToRandomSubWorker(message){
-    let min=0;
-    let max=this.hitTestWorkers.length -1;
-    let workerIndex = generateRandomNumber({min, max});
-    let worker = this.hitTestWorkers[workerIndex];
-    worker.postMessage(message);
+    this.hitTestOrchestrator.postMessageToRandomSubWorker(message);
   }
 
   destroySubWorkers(){

@@ -8,6 +8,7 @@ export default function hitTestWorkerFunc(){
   let {Box3} = THREE;
   let hittableWebWorkerHitBoxes = [];
   let p; //MessageChannel port we receive messages other than initialize on.
+  let id;//unique id provided by initialize function so that tasks can be given to 1 subworker at a time if needed.
 
   //performs hit tests agains all boxes
   function performHitTest({requestId, webWorkerHitBox1, webWorkerHitBoxes=hittableWebWorkerHitBoxes}){
@@ -59,10 +60,11 @@ export default function hitTestWorkerFunc(){
     }
   }
 
-  function intialize({port}){
+  function intialize({port, workerId}){
     if(!port){console.error(`hitTestWorkerFunc was not initialized with a port`);}
     p = port;
     p.onmessage = onmessage;
+    id = workerId;
   }
 
   function destroy(){
@@ -73,6 +75,8 @@ export default function hitTestWorkerFunc(){
   function onmessage(e){
     let data = e.data;
     let command = data.command;
+    let workerId = data.workerId;
+    if(workerId != undefined || workerId != id){return;}
 
     switch(command){
       case 'initialize':{
