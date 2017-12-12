@@ -96,41 +96,7 @@ export default class Cursor{
     if(movementX == undefined){return;}
     this.yawObject.rotation.y -= movementX * 0.0005;
     this.pitchObject.rotation.x -= movementY * 0.0005;
-
     this.pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, this.pitchObject.rotation.x ) );
-
-    // raycaster.ray.origin.copy( this.getObject().position );
-    // raycaster.ray.origin.y -= 10;
-
-
-    // var time = performance.now();
-    // var delta = ( time - prevTime ) / 1000;
-    //
-    // velocity.x -= velocity.x * 10.0 * delta;
-    // velocity.z -= velocity.z * 10.0 * delta;
-    //
-    // velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
-    //
-    // // direction.z = Number( true ) - Number( false );
-    // // direction.x = Number( false ) - Number( false );
-    // // direction.normalize(); // this ensures consistent movements in all directions
-    // //
-    // // if ( true || false ) velocity.z -= direction.z * 400.0 * delta;
-    // // if ( false || false ) velocity.x -= direction.x * 400.0 * delta;
-    //
-    // // if ( onObject === true ) {
-    // //
-    // //   velocity.y = Math.max( 0, velocity.y );
-    // //   canJump = true;
-    // //
-    // // }
-    //
-    // console.log(`moving x: ${velocity.x} y: ${velocity.y} z:${velocity.z} movementX:${movementX} movementY:${movementY}`);
-    // this.getObject().translateX( velocity.x * delta );
-    // this.getObject().translateY( velocity.y * delta );
-    // this.getObject().translateZ( velocity.z * delta );
-    //
-    // this.prevTime = time;
 
   }
   getDirection({v=new Vector3()}={}){ //not sure if anything calls this
@@ -188,3 +154,36 @@ export default class Cursor{
 
 }
 
+
+// raycaster.ray.origin.copy( this.getObject().position );
+// raycaster.ray.origin.y -= 10;
+
+
+// var time = performance.now();
+// var delta = ( time - prevTime ) / 1000;
+//
+// velocity.x -= velocity.x * 10.0 * delta;
+// velocity.z -= velocity.z * 10.0 * delta;
+//
+// velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
+//
+// // direction.z = Number( true ) - Number( false );
+// // direction.x = Number( false ) - Number( false );
+// // direction.normalize(); // this ensures consistent movements in all directions
+// //
+// // if ( true || false ) velocity.z -= direction.z * 400.0 * delta;
+// // if ( false || false ) velocity.x -= direction.x * 400.0 * delta;
+//
+// // if ( onObject === true ) {
+// //
+// //   velocity.y = Math.max( 0, velocity.y );
+// //   canJump = true;
+// //
+// // }
+//
+// console.log(`moving x: ${velocity.x} y: ${velocity.y} z:${velocity.z} movementX:${movementX} movementY:${movementY}`);
+// this.getObject().translateX( velocity.x * delta );
+// this.getObject().translateY( velocity.y * delta );
+// this.getObject().translateZ( velocity.z * delta );
+//
+// this.prevTime = time;
