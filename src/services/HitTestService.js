@@ -19,7 +19,7 @@ let webWorkerResultCommands = {
 export default class HitTestService{
   destroyFuncs=[]
   hitTestOrchestrator
-  constructor({signal, numberOfSubWorkers=10}){
+  constructor({signal, numberOfSubWorkers=3}){
     this.signal=signal;
     signal.registerSignals(this);
     this.destroyFuncs.push(function(){
