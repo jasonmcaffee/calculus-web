@@ -17,7 +17,6 @@ let webWorkerResultCommands = {
 }
 
 export default class HitTestService{
-  hitTestWorkers=[]
   destroyFuncs=[]
   hitTestOrchestrator
   constructor({signal, numberOfSubWorkers=3}){
@@ -51,49 +50,44 @@ export default class HitTestService{
   }
 
   //for things like updating hittableComponent's position.
-  postMessageToAllSubWorkers(message){
-    this.hitTestOrchestrator.postMessageToAllSubWorkers(message);
+  postMessageToAllSubWorkers(data){
+    this.hitTestOrchestrator.messageAllSubWorkers({data});
   }
 
   //for things like hit test for a bullet.
-  postMessageToRandomSubWorker(message){
-    this.hitTestOrchestrator.postMessageToRandomSubWorker(message);
+  postMessageToRandomSubWorker(data){
+    this.hitTestOrchestrator.messageRandomSubWorker({data});
   }
 
   destroySubWorkers(){
-    this.postMessageToAllSubWorkers({command:webWorkerCommands.destroy});
-    for(let i=0, len=this.hitTestWorkers.length; i < len; ++i) {
-      let worker = this.hitTestWorkers[i];
-      worker.terminate();
-    }
-    this.hitTestWorkers = [];
+    this.hitTestOrchestrator.destroy();
   }
 
   destroy(){
     this.destroyFuncs.forEach(df=>df());
     this.destroyFuncs = [];
-    this.signal.unregisterSignals(this);
     this.destroySubWorkers();
   }
 
   signals = {
     [ec.hitTest.performHitTest]({hitteeComponent, requestId, hitTestWorker=this.hitTestWorker}){
+      //console.log(`HitTestService received request to perform hit test`);
       let webWorkerHitBox1 = createWebWorkerHitBoxFromComponent({component: hitteeComponent});
       let webWorkerRequest = {command: webWorkerCommands.performHitTest, webWorkerHitBox1};
       // hitTestWorker.postMessage(webWorkerRequest);
       this.postMessageToRandomSubWorker(webWorkerRequest);
     },
-    [ec.hitTest.destroy]({hitTestWorker=this.hitTestWorker}={}){
+    [ec.hitTest.destroy]({}={}){
       this.destroy();
     },
-    [ec.hitTest.registerHittableComponent]({component, hitTestWorker=this.hitTestWorker}){
+    [ec.hitTest.registerHittableComponent]({component}){
       let hb = createWebWorkerHitBoxFromComponent({component});
       let {componentId, hitBox} = hb;
       let webWorkerRequest = {command: webWorkerCommands.registerHittableWebWorkerHitBox, componentId, hitBox};
       //hitTestWorker.postMessage(webWorkerRequest);
       this.postMessageToAllSubWorkers(webWorkerRequest);
     },
-    [ec.hitTest.unregisterHittableComponent]({componentId, hitTestWorker=this.hitTestWorker}){
+    [ec.hitTest.unregisterHittableComponent]({componentId}){
       let webWorkerRequest = {command: webWorkerCommands.unregisterHittableWebWorkerHitBox, componentId};
       //hitTestWorker.postMessage(webWorkerRequest);
       this.postMessageToAllSubWorkers(webWorkerRequest);

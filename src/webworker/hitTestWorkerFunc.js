@@ -12,6 +12,7 @@ export default function hitTestWorkerFunc(){
 
   //performs hit tests agains all boxes
   function performHitTest({requestId, webWorkerHitBox1, webWorkerHitBoxes=hittableWebWorkerHitBoxes}){
+    //console.log(`hitTestWorker ${id} is performing hitTest against ${hittableWebWorkerHitBoxes.length} hit boxes`);
     let hitteeComponentId = webWorkerHitBox1.componentId;
     let box1box3 = new Box3().set(webWorkerHitBox1.hitBox.min, webWorkerHitBox1.hitBox.max);
 
@@ -65,6 +66,8 @@ export default function hitTestWorkerFunc(){
     p = port;
     p.onmessage = onmessage;
     id = workerId;
+    console.log('hitTestWorkerFunc initialized with port: ', port);
+    //postMessage('hello');
   }
 
   function destroy(){
@@ -72,41 +75,32 @@ export default function hitTestWorkerFunc(){
   }
 
   //postMessage and port.postMessage will end up here.
-  function onmessage(e){
+  onmessage  = function(e){
+    //console.log(`hitTestWorkerFunc received message`, e.data);
     let data = e.data;
     let command = data.command;
-    let workerId = data.workerId;
-    if(workerId != undefined || workerId != id){return;}
 
     switch(command){
-      case 'initialize':{
+      case 'intialize':
         intialize(data);
-      }
-      case 'performHitTest':{
+        break;
+      case 'performHitTest':
         performHitTest(data);
         break;
-      }
-      case 'registerHittableWebWorkerHitBox':{
+      case 'registerHittableWebWorkerHitBox':
         registerHittableWebWorkerHitBox(data);
         break;
-      }
-      case 'unregisterHittableWebWorkerHitBox':{
+      case 'unregisterHittableWebWorkerHitBox':
         unregisterHittableWebWorkerHitBox(data);
         break;
-      }
-      case 'updateComponentHitBox':{
+      case 'updateComponentHitBox':
         updateComponentHitBox(data);
         break;
-      }
-      case 'destroy':{
+      case 'destroy':
         destroy(data);
         break;
-      }
-      default:{
+      default:
         console.log(`web worker did not recognize command ${command}`);
-      }
     }
   }
-
-  onmessage = onmessage
 }
