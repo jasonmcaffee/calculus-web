@@ -60,13 +60,13 @@ export default class StageOne {
       //console.log(`looking at x: ${x} y: ${y} z: ${z}`);
       this.camera.lookAt(new Vector3(x, y, z));
     },
-    [ec.camera.setLookAtFromMouseMovement]({x, y, z}){
-      //console.log(`setLookAtFromMouseMovement ${x}, ${y}, ${z}`);
-      x += this.camera.position.x;
-      y += this.camera.position.y;
-      z += this.camera.position.z;
-      signal.trigger(ec.camera.setLookAt, {x,y,z});
-    },
+    // [ec.camera.setLookAtFromMouseMovement]({x, y, z}){
+    //   //console.log(`setLookAtFromMouseMovement ${x}, ${y}, ${z}`);
+    //   x += this.camera.position.x;
+    //   y += this.camera.position.y;
+    //   z += this.camera.position.z;
+    //   signal.trigger(ec.camera.setLookAt, {x,y,z});
+    // },
     [ec.camera.moveMultiDirection](multiMovesEventData){
       // //let {x, y, z} = this.camera.position;
       // let moveDownAmount = multiMovesEventData[ec.camera.moveDown] || 0;

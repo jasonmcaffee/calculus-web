@@ -1,4 +1,4 @@
-import {BoxGeometry, CubeGeometry, MeshBasicMaterial, MeshNormalMaterial, MeshLambertMaterial, SphereGeometry, Mesh, Box3, Vector3, Object3D, Euler, Raycaster} from 'three';
+import {BoxGeometry, CubeGeometry, MeshBasicMaterial, MeshNormalMaterial, MeshLambertMaterial, SphereGeometry, Mesh, Box3, Vector3, Object3D, Euler, Raycaster, Clock} from 'three';
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn} from "core/core";
 
 let style = {
@@ -30,6 +30,7 @@ export default class Cursor{
   raycaster = new Raycaster( new Vector3(), new Vector3( 0, - 1, 0 ), 0, 10 )
   prevTime = 0
   velocity = new Vector3()
+  moveClock = new Clock()
   constructor({x=0, y=0, z=0, geometry=style.geometry.geometryOne, material=style.material.meshOne}={}){
     this.threejsObject = new Mesh(geometry, material);
 
@@ -69,13 +70,13 @@ export default class Cursor{
       let moveBackwardAmount = multiMovesEventData[ec.camera.moveBackward] || 0;
 
       let zAmount =  moveBackwardAmount - moveForwardAmount;
-      this.getObject().translateZ(zAmount);
+      this.yawObject.translateZ(zAmount);
 
       let xAmount = moveRightAmount - moveLeftAmount;
-      this.getObject().translateX(xAmount);
+      this.yawObject.translateX(xAmount);
 
       let yAmount = moveUpAmount - moveDownAmount;
-      this.getObject().translateY(yAmount);
+      this.yawObject.translateY(yAmount);
 
       //his.camera.position.set(x, y, z);
       let {x:newX, y:newY, z:newZ} = this.getObject().position;
@@ -92,15 +93,17 @@ export default class Cursor{
 
   //https://threejs.org/examples/misc_controls_pointerlock.html
   rotateCameraBasedOnMouseMovement({movementX=this.movementX, movementY=this.movementY, pitchObject=this.pitchObject, yawObject=this.yawObject, direction=this.direction,
-                                     rotation=this.rotation, raycaster=this.raycaster, prevTime=this.prevTime, velocity=this.velocity}={}){
+          rotation=this.rotation, raycaster=this.raycaster, prevTime=this.prevTime, velocity=this.velocity,
+          moveXAmount=.05, moveYAmount=.05, delta=this.moveClock.getDelta()}={}){
     if(movementX == undefined){return;}
-    this.yawObject.rotation.y -= movementX * 0.0005;
-    this.pitchObject.rotation.x -= movementY * 0.0005;
+    this.yawObject.rotation.y -= movementX * moveYAmount * delta;
+    this.pitchObject.rotation.x -= movementY * moveXAmount * delta;
     this.pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, this.pitchObject.rotation.x ) );
 
   }
   getDirection({v=new Vector3()}={}){ //not sure if anything calls this
     this.rotation.set( this.pitchObject.rotation.x, this.yawObject.rotation.y, 0 );
+    //console.log(`new rotation: ${this.rotation.x} ${this.rotation.y}`);
     v.copy(this.direction ).applyEuler( this.rotation );
     return v;
   }
@@ -142,6 +145,7 @@ export default class Cursor{
     scene.add(this.threejsObject);
 
     this.pitchObject.add(camera);
+    //this.yawObject.add(camera);
 
     scene.add(this.getObject());
 
