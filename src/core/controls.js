@@ -73,6 +73,11 @@ let controls = {
       //this.performLookAtBasedOnMouseMovement();
       this.performMovementBasedOnKeysPressed({clock});
       this.calculateCursorPositionAndSignal();
+      //stop the mouse from moving
+      // this.movementY = 0;
+      // this.movementX = 0;
+      // this.cursorX = 0;
+      // this.cursorY = 0;
     }
   },
   performLookAtBasedOnMouseMovement({lookSpeed=0.1, mouseX=this.mouseX, mouseY=this.mouseY}={}){

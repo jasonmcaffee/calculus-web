@@ -71,15 +71,18 @@ export default class Cursor{
 
       let zAmount =  moveBackwardAmount - moveForwardAmount;
       this.yawObject.translateZ(zAmount);
+      // this.pitchObject.translateZ(zAmount);
 
       let xAmount = moveRightAmount - moveLeftAmount;
       this.yawObject.translateX(xAmount);
+      // this.pitchObject.translateX(xAmount);
 
       let yAmount = moveUpAmount - moveDownAmount;
       this.yawObject.translateY(yAmount);
+      // this.pitchObject.translateY(yAmount);
 
       //his.camera.position.set(x, y, z);
-      let {x:newX, y:newY, z:newZ} = this.getObject().position;
+      let {x:newX, y:newY, z:newZ} = this.yawObject.position;
 
 
       signal.trigger(ec.camera.positionChanged, {x:newX, y:newY, z:newZ, camera:this.camera, xAmount, yAmount, zAmount});
@@ -89,9 +92,30 @@ export default class Cursor{
     //this.moveToWhereMouseIsPointed();
     this.rotateCameraBasedOnMouseMovement();
     this.calculateNewCursorPosition();//must be done after rotate.
+    //stop camera from rotating if mouse stops.
+    // this.movementX = 0;
+    // this.movementY = 0;
+    // this.cursorY = 0;
+    // this.cursorX = 0;
   }
 
   //https://threejs.org/examples/misc_controls_pointerlock.html
+  /**
+   * The MouseEvent.movementX read-only property provides the shift in the X coordinate of the mouse pointer between that event and the previous mousemove event.
+   * In other words, the value of that property is computed that way : currentEvent.movementX = currentEvent.screenX - previousEvent.screenX.
+   * @param movementX
+   * @param movementY
+   * @param pitchObject
+   * @param yawObject
+   * @param direction
+   * @param rotation
+   * @param raycaster
+   * @param prevTime
+   * @param velocity
+   * @param moveXAmount
+   * @param moveYAmount
+   * @param delta
+   */
   rotateCameraBasedOnMouseMovement({movementX=this.movementX, movementY=this.movementY, pitchObject=this.pitchObject, yawObject=this.yawObject, direction=this.direction,
           rotation=this.rotation, raycaster=this.raycaster, prevTime=this.prevTime, velocity=this.velocity,
           moveXAmount=.05, moveYAmount=.05, delta=this.moveClock.getDelta()}={}){
@@ -102,7 +126,7 @@ export default class Cursor{
 
   }
   getDirection({v=new Vector3()}={}){ //not sure if anything calls this
-    this.rotation.set( this.pitchObject.rotation.x, this.yawObject.rotation.y, 0 );
+    this.rotation.set( this.pitchObject.rotation.x, this.yawObject.rotation.y, 0);
     //console.log(`new rotation: ${this.rotation.x} ${this.rotation.y}`);
     v.copy(this.direction ).applyEuler( this.rotation );
     return v;
@@ -114,6 +138,8 @@ export default class Cursor{
     var dir = direction;//vector.sub( cameraPosition ).normalize();
     var distance = 15;//- camera.position.z / dir.z;
     var pos = cameraPosition.clone().add( dir.multiplyScalar( distance ) );
+
+    //set new position
     this.threejsObject.position.copy(pos);
     //console.log(`new position ${JSON.stringify(this.threejsObject.position)}`);
     let {x, y, z} = this.threejsObject.position;
