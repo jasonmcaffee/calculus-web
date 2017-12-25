@@ -35,7 +35,9 @@ export default class SpaceDrone {
   moveClock = new Clock()
   excludedTargetComponentIds=[] //sometimes we dont want enemies to go after things like earth, etc. so we use these ids to ignore certain targets.
   followTargets = true //disable when we are using a SpaceDroneCloud, which needs to orchestrate movements for all drones.
-  constructor({x = grn({min, max}), y = grn({min, max}), z = grn({min, max}), hitPoints=1, bulletDistancePerSecond=150, moveDistancePerSecond=12, damage=0.2, excludedTargetComponentIds=[], followTargets=true} = {}) {
+  handleHitTestResults = true //should drone control when it moves backwards after hitting something. dronecloud wants to control this.
+  constructor({x = grn({min, max}), y = grn({min, max}), z = grn({min, max}), hitPoints=1, bulletDistancePerSecond=150, moveDistancePerSecond=12, damage=0.2,
+                excludedTargetComponentIds=[], followTargets=true} = {}, handleHitTestResults=true) {
     let geometry = standardGeomatry;
     this.hitPoints = hitPoints;
     this.bulletDistancePerSecond = bulletDistancePerSecond;
@@ -45,6 +47,7 @@ export default class SpaceDrone {
     this.damage = damage;
     this.excludedTargetComponentIds = excludedTargetComponentIds;
     this.followTargets = followTargets;
+    this.handleHitTestResults = handleHitTestResults;
 
     let texture = new Texture();
     texture.image = this.image;
@@ -99,6 +102,7 @@ export default class SpaceDrone {
     },
     //see if we hit anything while moving.e.g earth
     [ec.hitTest.hitTestResult]({doesIntersect, hitteeComponentId, hitComponentId, damage=this.damage}){
+      if(!this.handleHitTestResults){return;}
       if(this.componentId != hitteeComponentId || this.hitExclusionComponentId == hitComponentId){return;}
       this.hasHit = true;
       console.log(`spacedrone has hit something ${hitteeComponentId}  ${hitComponentId}`);

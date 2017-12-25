@@ -27,7 +27,7 @@ export default class TypeWriterText extends React.Component {
   }
   startTyping({state=this.state}={}){
     this.typeWriterAudio.currentTime = 0;
-    this.typeWriterAudio.play();
+    //this.typeWriterAudio.play();
     let {typeIntervalMs} = state;
     let self = this;
     this.typeIntervalId = setInterval(()=>{

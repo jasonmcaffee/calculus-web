@@ -14,7 +14,7 @@ export default class SpaceDroneCloud {
   componentId = generateUniqueId({name: 'SpaceDroneCloud'})
   excludedTargetComponentIds=[] //sometimes we dont want enemies to go after things like earth, etc. so we use these ids to ignore certain targets.
   droneComponents=[]
-  constructor({numberOfDronesToCreate=15, x = grn({min, max}), y = grn({min, max}), z = grn({min, max}), hitPoints=1, bulletDistancePerSecond=150, moveDistancePerSecond=12, damage=0.2, excludedTargetComponentIds=[], droneSizeRadius=.5} = {}) {
+  constructor({numberOfDronesToCreate=10, x = grn({min, max}), y = grn({min, max}), z = grn({min, max}), hitPoints=1, bulletDistancePerSecond=150, moveDistancePerSecond=12, damage=0.2, excludedTargetComponentIds=[], droneSizeRadius=.5} = {}) {
     this.excludedTargetComponentIds = excludedTargetComponentIds;
     this.position = {x, y, z};
     this.droneComponents = this.createDrones({numberOfDronesToCreate, droneSizeRadius, excludedTargetComponentIds});
@@ -30,7 +30,19 @@ export default class SpaceDroneCloud {
       console.log(`my babies! someone killed my baby ${componentId}`);
       this.removeDrone({componentId});
       signal.trigger(ec.stage.destroyComponent, {componentId});
-    }
+    },
+    //see if we hit anything while moving.e.g earth
+    [ec.hitTest.hitTestResult]({doesIntersect, hitteeComponentId, hitComponentId, damage=this.damage}){
+      let myDeadSpaceDrone = this.droneComponents.find(d=> d.componentId === hitComponentId);
+      if(!myDeadSpaceDrone){return;}
+
+      return; //todo: move all drones to new position
+      if(this.componentId != hitteeComponentId){return;}
+      this.hasHit = true;
+      console.log(`spacedrone has hit something ${hitteeComponentId}  ${hitComponentId}`);
+      this.lastHitComponentId = hitComponentId;
+      this.moveInOppositeDirection();
+    },
   }
 
   removeDrone({componentId, droneComponents=this.droneComponents}){
@@ -38,16 +50,23 @@ export default class SpaceDroneCloud {
     if(index < 0){return;}
     droneComponents.splice(index, 1);
   }
-  createDrones({startPosition=this.position, numberOfDronesToCreate, hitPoints=1, bulletDistancePerSecond=150, moveDistancePerSecond=12, damage=0.2, excludedTargetComponentIds=[], droneSizeRadius=2}){
+
+  repositionDrones({droneComponents=this.droneComponents, startPosition=this.position}){
+    let numberOfDrones = droneComponents.length;
+    if(numberOfDrones <= 0){return;}
+    let positions = calculateSphereSurfacePositions({radius, degreeIncrement: 360 / numberOfDrones, flatX:true});
+  }
+
+  createDrones({startPosition=this.position, numberOfDronesToCreate, hitPoints=1, bulletDistancePerSecond=150, moveDistancePerSecond=12, damage=0.2, excludedTargetComponentIds=[], droneSizeRadius=2, handleHitTestResults=false}){
     //first create their positions
     let radius = droneSizeRadius * 2 * numberOfDronesToCreate;
-    let positions = calculateSphereSurfacePositions({radius, degreeIncrement: 360 / numberOfDronesToCreate, flatX:true});
-    let drones = positions.map( ({x, y, z})=> this.createDrone({x, y, z, hitPoints, bulletDistancePerSecond, moveDistancePerSecond, damage, excludedTargetComponentIds}) );
+    let positions = calculateSphereSurfacePositions({startPosition, radius, degreeIncrement: 360 / numberOfDronesToCreate, flatX:true});
+    let drones = positions.map( ({x, y, z})=> this.createDrone({x, y, z, hitPoints, bulletDistancePerSecond, moveDistancePerSecond, damage, excludedTargetComponentIds, handleHitTestResults}) );
     return drones;
   }
 
-  createDrone({x=0, y=0, z=0, hitPoints=1, bulletDistancePerSecond=150, moveDistancePerSecond=12, damage=0.2, excludedTargetComponentIds=[], followTargets=false}){
-    let spaceDrone = new SpaceDrone({x, y, z, hitPoints, bulletDistancePerSecond, moveDistancePerSecond, damage, excludedTargetComponentIds, followTargets});
+  createDrone({x=0, y=0, z=0, hitPoints=1, bulletDistancePerSecond=150, moveDistancePerSecond=12, damage=0.2, excludedTargetComponentIds=[], followTargets=false, handleHitTestResults=false}){
+    let spaceDrone = new SpaceDrone({x, y, z, hitPoints, bulletDistancePerSecond, moveDistancePerSecond, damage, excludedTargetComponentIds, followTargets, handleHitTestResults});
     return spaceDrone;
   }
 
