@@ -30,7 +30,7 @@ export default class GameMenu extends React.Component {
     this.createModalMap();
   }
   componentDidMount(){
-    this.startMenuAudio.play();
+    //this.startMenuAudio.play();
   }
   componentWillUnmount(){
     signal.unregisterSignals(this);

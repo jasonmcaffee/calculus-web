@@ -34,7 +34,8 @@ export default class SpaceDrone {
   targets = [] //{componentId, x, y, z} all targets that move
   moveClock = new Clock()
   excludedTargetComponentIds=[] //sometimes we dont want enemies to go after things like earth, etc. so we use these ids to ignore certain targets.
-  constructor({x = grn({min, max}), y = grn({min, max}), z = grn({min, max}), hitPoints=1, bulletDistancePerSecond=150, moveDistancePerSecond=12, damage=0.2, excludedTargetComponentIds=[]} = {}) {
+  followTargets = true //disable when we are using a SpaceDroneCloud, which needs to orchestrate movements for all drones.
+  constructor({x = grn({min, max}), y = grn({min, max}), z = grn({min, max}), hitPoints=1, bulletDistancePerSecond=150, moveDistancePerSecond=12, damage=0.2, excludedTargetComponentIds=[], followTargets=true} = {}) {
     let geometry = standardGeomatry;
     this.hitPoints = hitPoints;
     this.bulletDistancePerSecond = bulletDistancePerSecond;
@@ -43,6 +44,7 @@ export default class SpaceDrone {
     this.image.src = tysonsFaceImageSource;
     this.damage = damage;
     this.excludedTargetComponentIds = excludedTargetComponentIds;
+    this.followTargets = followTargets;
 
     let texture = new Texture();
     texture.image = this.image;
@@ -176,6 +178,7 @@ export default class SpaceDrone {
     return false;
   }
   followNearestTarget({nearestTargetVector=this.nearestTargetVector, delta=this.moveClock.getDelta(), moveDistancePerSecond=this.moveDistancePerSecond}={}){
+    if(!this.followTargets){return; }
     if(!nearestTargetVector){ return;}
     if(this.stopMovingIfYouHitEarth()){return;}
 
