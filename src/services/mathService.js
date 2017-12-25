@@ -20,7 +20,7 @@ export function calculateRadiansFromDegrees({ degreeIncrement=45}={}){
  * @param radius - line length from startPosition
  * @param radians - number of lines per plane. this is precalculated on initialization in order to avoid unneeded calcs during frame rendering.
  */
-export function calculateSphereSurfacePositions({startPosition={x:0, y:0, z:0}, radius=1, degreeIncrement=45, flatZ=false, flatY=true, flatX=false}={}){
+export function calculateSphereSurfacePositions({startPosition={x:0, y:0, z:0}, radius=1, degreeIncrement=45, flatZ=false, flatY=false, flatX=false}={}){
   let radians = calculateRadiansFromDegrees({degreeIncrement});
   let {x, y, z} = startPosition;//starting point of each line we draw
   let x2, y2, z2;
