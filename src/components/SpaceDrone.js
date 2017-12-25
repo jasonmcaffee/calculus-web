@@ -206,14 +206,8 @@ export default class SpaceDrone {
 
   fireBulletAtNearestTarget({nearestTargetVector=this.nearestTargetVector, threejsObject=this.threejsObject, componentId=this.componentId,
                               bulletMaterial=Bullet.style.material.sphereMaterialRed, bulletDistancePerSecond=this.bulletDistancePerSecond, damage=this.damage}={}){
-    if(!nearestTargetVector){
-      let min = -10000;
-      let max = 10000;
-      let grn = generateRandomNumber;
-      nearestTargetVector = {x:grn({min, max}), y:grn({min, max}), z:grn({min, max})};
-    }
-    let playerPositionVector = nearestTargetVector;
-
+    if(!nearestTargetVector){return;}//don't fire if you don't have targets.
+    let targetVector = nearestTargetVector;
     let startPosition = threejsObject.position.clone();
     let direction = new Vector3();
     direction.subVectors(nearestTargetVector, startPosition);
