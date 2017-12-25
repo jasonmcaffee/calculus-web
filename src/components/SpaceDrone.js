@@ -87,6 +87,12 @@ export default class SpaceDrone {
   }
 
   signals = {
+    [ec.component.setPosition]({componentId, x, y, z}){
+      if(this.componentId !== componentId){return;}
+      this.threejsObject.position.set(x, y, z);
+      this.hitBox = new Box3().setFromObject(this.threejsObject);
+      signal.trigger(ec.hitTest.updateComponentHitBox, {component:this});
+    },
     [ec.hitTest.hitComponent]({hitComponent, damage=0}) {
       let componentId = hitComponent.componentId;
       if (this.componentId !== componentId) {

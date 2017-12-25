@@ -67,6 +67,9 @@ export const eventConfig = {
     died: 'enemy.died', //so game config can determine if game ended.
     targetPositionChanged: 'enemy.target.positionChanged', //for earth, player, etc. lets enemies know where there targets are.
   },
+  component:{
+    setPosition: 'component.setPosition'// generic way of setting any component's position by componentId. NOT EVERYTHING IMPLEMENTS THIS YET.
+  },
   game:{
     startGame:'game.startGame',
     stopGame:'game.stopGame',

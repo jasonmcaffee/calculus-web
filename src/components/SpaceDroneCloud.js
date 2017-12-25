@@ -14,11 +14,12 @@ export default class SpaceDroneCloud {
   componentId = generateUniqueId({name: 'SpaceDroneCloud'})
   excludedTargetComponentIds=[] //sometimes we dont want enemies to go after things like earth, etc. so we use these ids to ignore certain targets.
   droneComponents=[]
+  droneSizeRadius //rough size of drone to help figure out how to position them in circle
   constructor({numberOfDronesToCreate=10, x = grn({min, max}), y = grn({min, max}), z = grn({min, max}), hitPoints=1, bulletDistancePerSecond=150, moveDistancePerSecond=12, damage=0.2, excludedTargetComponentIds=[], droneSizeRadius=.5} = {}) {
     this.excludedTargetComponentIds = excludedTargetComponentIds;
     this.position = {x, y, z};
     this.droneComponents = this.createDrones({numberOfDronesToCreate, droneSizeRadius, excludedTargetComponentIds});
-
+    this.droneSizeRadius = droneSizeRadius;
     signal.registerSignals(this);
   }
 
@@ -30,13 +31,16 @@ export default class SpaceDroneCloud {
       console.log(`my babies! someone killed my baby ${componentId}`);
       this.removeDrone({componentId});
       signal.trigger(ec.stage.destroyComponent, {componentId});
+      this.formDronesIntoACircle();
     },
     //see if we hit anything while moving.e.g earth
     [ec.hitTest.hitTestResult]({doesIntersect, hitteeComponentId, hitComponentId, damage=this.damage}){
-      let myDeadSpaceDrone = this.droneComponents.find(d=> d.componentId === hitComponentId);
-      if(!myDeadSpaceDrone){return;}
+      let mySpaceDroneThatHitSomething = this.droneComponents.find(d=> d.componentId === hitteeComponentId);
+      if(!mySpaceDroneThatHitSomething){return;}
 
-      return; //todo: move all drones to new position
+      return;//todo move all drones backwards.
+      //this.repositionDrones();
+
       if(this.componentId != hitteeComponentId){return;}
       this.hasHit = true;
       console.log(`spacedrone has hit something ${hitteeComponentId}  ${hitComponentId}`);
@@ -51,10 +55,25 @@ export default class SpaceDroneCloud {
     droneComponents.splice(index, 1);
   }
 
-  repositionDrones({droneComponents=this.droneComponents, startPosition=this.position}){
+  formDronesIntoACircle({droneComponents=this.droneComponents, startPosition=this.position, droneSizeRadius=this.droneSizeRadius}={}){
     let numberOfDrones = droneComponents.length;
     if(numberOfDrones <= 0){return;}
-    let positions = calculateSphereSurfacePositions({radius, degreeIncrement: 360 / numberOfDrones, flatX:true});
+
+    //calculate new positions
+    let radius = droneSizeRadius * 2 * numberOfDrones;
+    let positions = calculateSphereSurfacePositions({startPosition, radius, degreeIncrement: 360 / numberOfDrones, flatX:true});
+    if(positions.length != numberOfDrones){
+      console.error(`positions dont match number of drones.`);
+      return;
+    }
+
+    //set drone positions
+    for(let i=0; i < numberOfDrones; ++i){
+      let drone = droneComponents[i];
+      let position = positions[i];
+      let {x, y, z} = position;
+      signal.trigger(ec.component.setPosition, {componentId:drone.componentId, x, y, z});
+    }
   }
 
   createDrones({startPosition=this.position, numberOfDronesToCreate, hitPoints=1, bulletDistancePerSecond=150, moveDistancePerSecond=12, damage=0.2, excludedTargetComponentIds=[], droneSizeRadius=2, handleHitTestResults=false}){
