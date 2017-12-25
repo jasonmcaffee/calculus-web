@@ -10,6 +10,7 @@ import Galaxy from 'components/Galaxy';
 import AsteroidMine from 'components/AsteroidMine'
 import SunLight from 'components/SunLight';
 import SpaceDrone from 'components/SpaceDrone';
+import SpaceDroneCloud from 'components/SpaceDroneCloud';
 
 export default class SaveUranus{
   onDestroyFuncs = [] //stuff to run when we destroy.
@@ -73,7 +74,9 @@ export default class SaveUranus{
     let earthComponent = new Earth({radius:earthRadius})
     signal.trigger(ec.stage.addComponent, {component: earthComponent});
 
-    this.addEnemyAndRegisterWithStage(new SpaceDrone({x:5.3, y: 56, z:8.6, excludedTargetComponentIds:[playerComponent.componentId, earthComponent.componentId]}));
+    //this.addEnemyAndRegisterWithStage(new SpaceDrone({x:5.3, y: 56, z:8.6, excludedTargetComponentIds:[playerComponent.componentId, earthComponent.componentId]}));
+    let spaceDroneCloudComponent = new SpaceDroneCloud({x:5.3, y: 56, z:8.6, excludedTargetComponentIds:[playerComponent.componentId, earthComponent.componentId]});
+    signal.trigger(ec.stage.addComponent, {component: spaceDroneCloudComponent});
 
     signal.trigger(ec.stage.addComponent, {component: new Cursor()});
 
