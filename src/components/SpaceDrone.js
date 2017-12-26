@@ -87,6 +87,7 @@ export default class SpaceDrone {
   }
 
   signals = {
+    //used when we disable following targets. drone cloud will fire this event.
     [ec.component.setPosition]({componentId, x, y, z}){
       if(this.componentId !== componentId){return;}
       this.threejsObject.position.set(x, y, z);
@@ -212,8 +213,8 @@ export default class SpaceDrone {
   startFiringBullets(timeout=generateRandomNumber({min:100, max:1000})){
     if(this.isDestroyed){return;}
     setTimeout(function(){
-      this.fireBulletAtNearestTarget();
-      this.startFiringBullets();
+      //this.fireBulletAtNearestTarget();
+     // this.startFiringBullets();
     }.bind(this), timeout)
   }
 
