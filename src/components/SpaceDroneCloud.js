@@ -180,12 +180,11 @@ export default class SpaceDroneCloud {
   }
 
   //when we run into something.
-  moveInOppositeDirection({currentDirection=this.currentDirection, currentPosition=this.threejsObject.position, distance=-2}={}){
+  moveInOppositeDirection({currentDirection=this.currentDirection, currentPosition=this.positionVector, distance=-2}={}){
     console.log(`tysons mom moving in opposite direction`);
     let newPosition = new Vector3().copy(currentDirection).normalize().multiplyScalar(distance);
-    this.threejsObject.position.add(newPosition);
-    this.hitBox = new Box3().setFromObject(this.threejsObject);
-    signal.trigger(ec.hitTest.updateComponentHitBox, {component:this});
+    this.positionVector.add(newPosition);
+    this.formDronesIntoACircle();
   }
 
   performHitTest({hitteeComponent=this}={}){
