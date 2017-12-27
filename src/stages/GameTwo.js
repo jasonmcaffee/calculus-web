@@ -77,14 +77,15 @@ export default class SaveUranus{
     let earthComponent = new Earth({radius:earthRadius})
     signal.trigger(ec.stage.addComponent, {component: earthComponent});
 
-    //this.addEnemyAndRegisterWithStage(new SpaceDrone({x:5.3, y: 56, z:8.6, excludedTargetComponentIds:[playerComponent.componentId, earthComponent.componentId]}));
-    let spaceDroneCloudComponent = new SpaceDroneCloud({x:5.3, y: 56, z:8.6, excludedTargetComponentIds:[ earthComponent.componentId]}); //playerComponent.componentId,
+    //this.addEnemyAndRegisterWithStage(new SpaceDrone({x:5.3, y: 56, z:8.6, excludedTargetComponentIds:[playerComponent.componentId, earthComponent.componentId]}))
+    // let spaceDroneCloudComponent = new SpaceDroneCloud({x:5.3, y: 56, z:8.6, excludedTargetComponentIds:[ earthComponent.componentId]}); //playerComponent.componentId,
+    let spaceDroneCloudComponent = new SpaceDroneCloud({x: -153, y:158, z:40, excludedTargetComponentIds:[ earthComponent.componentId]}); //playerComponent.componentId,
     signal.trigger(ec.stage.addComponent, {component: spaceDroneCloudComponent});
     this.enemies.push(...spaceDroneCloudComponent.droneComponents);
 
     signal.trigger(ec.stage.addComponent, {component: new Cursor()});
 
-    signal.trigger(ec.stage.addComponent, {component: new Galaxy()});
+    signal.trigger(ec.stage.addComponent, {component: new Galaxy({x: -153, y:158, z:40})});
     signal.trigger(ec.stage.addComponent, {component: new SunLight({x: 100, y:100, z:700})})
   }
 

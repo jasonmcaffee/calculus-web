@@ -1,7 +1,7 @@
 import {BoxGeometry, CubeGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3, Texture, MirroredRepeatWrapping, Vector3, Clock, AudioLoader, PositionalAudio, AudioListener} from 'three';
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn} from "core/core";
 import SpaceDrone from 'components/SpaceDrone';
-import {calculateSphereSurfacePositions} from 'services/mathService';
+import {calculateSphereSurfacePositions, rotateVector} from 'services/mathService';
 /*
   Cloud of space drones that form different shapes.
   Rectangle, circle, diamond, where each shape represents a level of difficulty in defeating.
@@ -26,6 +26,7 @@ export default class SpaceDroneCloud {
     this.droneSizeRadius = droneSizeRadius;
     this.excludedTargetComponentIds = excludedTargetComponentIds;
     this.moveDistancePerSecond = moveDistancePerSecond;
+
     signal.registerSignals(this);
 
   }
@@ -114,7 +115,7 @@ export default class SpaceDroneCloud {
     }
   }
 
-  createDrones({startPosition=this.position, numberOfDronesToCreate, hitPoints=1, bulletDistancePerSecond=150, moveDistancePerSecond=12, damage=0.2, excludedTargetComponentIds=[], droneSizeRadius=2, handleHitTestResults=false}){
+  createDrones({startPosition=this.positionVector, numberOfDronesToCreate, hitPoints=1, bulletDistancePerSecond=150, moveDistancePerSecond=12, damage=0.2, excludedTargetComponentIds=[], droneSizeRadius=2, handleHitTestResults=false}){
     //first create their positions
     let radius = droneSizeRadius * 2 * numberOfDronesToCreate;
     let positions = calculateSphereSurfacePositions({startPosition, radius, degreeIncrement: 360 / numberOfDronesToCreate, flatX:true});
@@ -176,7 +177,29 @@ export default class SpaceDroneCloud {
    * You could do some cool circling effects/reformation of each drone every interval.
    */
   render() {
-    this.followNearestTarget();
+   // this.followNearestTarget();
+    this.rotateDrones();
+  }
+
+  rotateDrones({droneComponents=this.droneComponents, degrees=1, axisVector={x:0, y:0, z:1} } ={}){
+    // axisVector = this.positionVector.clone();
+    // axisVector.normalize();
+    // axisVector.y +=10;
+
+    for(let i = 0, len=droneComponents.length; i < len; ++i){
+      let drone = droneComponents[i];
+      if(i>0){return;}//debug
+      this.rotateDrone({drone, degrees, axisVector});
+
+    }
+  }
+
+  rotateDrone({drone, degrees=1, axisVector={x:0, y:1, z:0} } ={}){
+    let componentId = drone.componentId;
+    let startPosition = drone.threejsObject.position;
+    let endPosition = rotateVector({vector: startPosition, axisVector, degrees});
+    let {x, y, z} = endPosition;
+    signal.trigger(ec.component.setPosition, {componentId, x, y, z});
   }
 
   //when we run into something.

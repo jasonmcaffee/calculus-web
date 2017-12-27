@@ -267,8 +267,8 @@ export default class SpaceDrone {
   }
 
   render() {
-    this.threejsObject.rotation.x += 0.01;
-    this.threejsObject.rotation.y += 0.02;
+    // this.threejsObject.rotation.x += 0.01;
+    // this.threejsObject.rotation.y += 0.02;
     //this.hitBox = new Box3().setFromObject(this.threejsObject); //allow for moving box
     this.followNearestTarget();
   }

@@ -1,3 +1,5 @@
+//http://manual.conitec.net/avec-intro.htm
+
 /**
  * Converts degrees into radians, which are used to calculate vectors on the surface of a sphere.
  * @param degreeIncrement
@@ -55,4 +57,102 @@ export function calculateSphereSurfacePositions({startPosition={x:0, y:0, z:0}, 
 
   }
   return spherePositions;
+}
+
+/**
+ * Rotates a vector by N degrees around the axis vector.
+ hypotenuse
+           ◢ opposite
+    adjacent
+ Soh...     Sine = Opposite / Hypotenuse
+ ...cah...  Cosine = Adjacent / Hypotenuse
+ ...toa     Tangent = Opposite / Adjacent
+
+ * https://www.youtube.com/watch?v=UaK2q22mMEg
+ * @param vector
+ * @param axisVector
+ * @param degrees
+ */
+export function rotateVector({vector, axisVector, degrees}){
+  let radians = convertDegreesToRadians(degrees);
+  let normalizedAxisVector = normalizeVector(axisVector);//n hat
+  //for a right triangle, what is the ratio of adjacent side to the hypotenuse side.
+  let cosRadians = Math.cos(radians);
+  //for a right triangle, what is the ratio of opposite side to the hypotenuse side.
+  let sinRadians = Math.sin(radians);
+
+  let vectorThatIsOrthogonalToNormalizedAxisVectorAndVector = calculateCrossProduct({vector1: normalizedAxisVector, vector2: vector});
+
+  let vectorScaledByCosRadian = multiplyVectorByScalar({vector, scalar: cosRadians});
+  let orthagonalVectorScaledBySinRadians = multiplyVectorByScalar({vector: vectorThatIsOrthogonalToNormalizedAxisVectorAndVector, scalar: sinRadians});
+
+  let vectorPrime = addVectors(({vector1: vectorScaledByCosRadian, vector2: orthagonalVectorScaledBySinRadians}));
+  return vectorPrime;
+}
+
+function addVectors({vector1, vector2}){
+  let {x: x1, y: y1, z: z1} = vector1;
+  let {x: x2, y: y2, z: z2} = vector2;
+  return {
+    x: x1 + x2,
+    y: y1 + y2,
+    z: z1 + z2,
+  };
+}
+
+function multiplyVectorByScalar({vector, scalar}){
+  let {x, y, z} = vector;
+  return {
+    x: x * scalar,
+    y: y * scalar,
+    z: z * scalar,
+  };
+}
+/**
+ * Given two linearly independent vectors a and b, the cross product, a × b, is a vector that is perpendicular to both a and b and thus normal to the plane containing them.
+ *
+ * https://www.khanacademy.org/math/linear-algebra/vectors-and-spaces/dot-cross-products/v/linear-algebra-cross-product-introduction
+ * https://en.wikipedia.org/wiki/Cross_product
+ * @param vector1
+ * @param vector2
+ */
+function calculateCrossProduct({vector1, vector2}){
+  let {x: a1, y: a2, z: a3} = vector1;
+  let {x: b1, y: b2, z: b3} = vector2;
+
+  let x = (a2 * b3) - (a3 * b2);
+  let y = (a3 * b1) - (a1 * b3);
+  let z = (a1 * b2) - (a2 * b1);
+
+  return {x, y, z};
+}
+
+//finds the unit vector/vector normal. i.e. n hat
+function normalizeVector({x, y, z}){
+  let vectorLength = calculateVectorLength({x, y, z});
+  let unitVector = {
+    x: x / vectorLength,
+    y: y / vectorLength,
+    z: z / vectorLength,
+  };
+  return unitVector;
+}
+
+function calculateVectorLength({x, y, z}){
+  let xPow2 = Math.pow(x, 2);
+  let yPow2 = Math.pow(y, 2);
+  let zPow2 = Math.pow(z, 2);
+  let vectorLength = Math.sqrt(xPow2 + yPow2 + zPow2);
+  return vectorLength;
+}
+
+const piDividedBy180 = Math.PI / 180;
+function convertDegreesToRadians(degrees){
+  let radian = degrees * piDividedBy180;//Math.PI / 180;
+  return radian;
+}
+
+function convertRadiansToDegrees(radians){
+  let degrees = radians/piDividedBy180;
+  return degrees;
 }
