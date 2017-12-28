@@ -157,6 +157,24 @@ export default class SpaceDroneCloud {
     return {nearestTargetVector, nearestComponentId};
   }
 
+  createLinePointingStraightUp({startPosition=this.positionVector, lineLength=100} = {}){
+    let direction = new Vector3();
+    let straightUpVector = new Vector3(startPosition.x, startPosition.y +100, startPosition.z);
+    direction.subVectors(straightUpVector, startPosition);
+
+    let distance = lineLength;
+    let endPosition = direction.multiplyScalar(distance);
+
+    let {x, y, z} = startPosition;
+    let {x: x2, y: y2, z: z2} = endPosition;
+
+
+    console.log(`startPosition: x: ${x}, y: ${y}, z:${z}    endPosition: x: ${x2}, y: ${y2}, z: ${z2}`);
+    let line = createLine({x, y, z, x2, y2, z2});
+    return line;
+  }
+
+
   followNearestTarget({nearestTargetVector=this.nearestTargetVector, delta=this.moveClock.getDelta(), moveDistancePerSecond=this.moveDistancePerSecond, startPosition=this.positionVector}={}){
     if(!nearestTargetVector){ return;}
 
@@ -181,8 +199,11 @@ export default class SpaceDroneCloud {
     this.rotateDrones();
   }
 
-  rotateDrones({droneComponents=this.droneComponents, degrees=10, axisVector={x:0, y:1, z:0} } ={}){
-    axisVector = this.positionVector.clone();
+  rotateDrones({droneComponents=this.droneComponents, degrees=2, axisVector={x:0, y:1, z:0} } ={}){
+    axisVector.y += this.positionVector.y;
+    axisVector.z += this.positionVector.z;
+    axisVector.x += this.positionVector.x;
+    //axisVector = this.positionVector.clone();
     // axisVector.y += 1;
     //axisVector.normalize();
     //axisVector.y += 1;
@@ -223,8 +244,11 @@ export default class SpaceDroneCloud {
     let {x: x2, y: y2, z: z2} = this.positionVector;
 
     //debug rotation issue
-    let line = createLine({x:0, y:0, z:0, x2, y2, z2});
-    scene.add(line);
+    let positionLine = createLine({x:0, y:0, z:0, x2, y2, z2});
+    scene.add(positionLine);
+
+    let straightUpLine = this.createLinePointingStraightUp();
+    scene.add(straightUpLine);
   }
 
 

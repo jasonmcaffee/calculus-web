@@ -68,7 +68,7 @@ export function rotateVectorViaRotationMatrix(){
 
 
 /**
- *
+ * https://jsfiddle.net/b3jb5uy5/2/
  * NOTE: something is a bit off in this chain of functions. z lowers the more times it is called.
  * Rotates a vector by N degrees around the axis vector.
  hypotenuse
@@ -91,6 +91,8 @@ export function rotateVector({vector, axisVector, degrees}){
 
   //for a right triangle, what is the ratio of adjacent side to the hypotenuse side.
   let cosRadians = Math.cos(radians);
+  cosRadians = cosRadians.toPrecision(10);
+
   //for a right triangle, what is the ratio of opposite side to the hypotenuse side.
   let sinRadians = Math.sin(radians);
 
