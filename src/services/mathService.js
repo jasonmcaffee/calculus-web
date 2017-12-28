@@ -1,4 +1,7 @@
-//http://manual.conitec.net/avec-intro.htm
+import {Vector3} from 'three';
+
+
+/// /http://manual.conitec.net/avec-intro.htm
 
 /**
  * Converts degrees into radians, which are used to calculate vectors on the surface of a sphere.
@@ -59,7 +62,14 @@ export function calculateSphereSurfacePositions({startPosition={x:0, y:0, z:0}, 
   return spherePositions;
 }
 
+export function rotateVectorViaRotationMatrix(){
+
+}
+
+
 /**
+ *
+ * NOTE: something is a bit off in this chain of functions. z lowers the more times it is called.
  * Rotates a vector by N degrees around the axis vector.
  hypotenuse
            ◢ opposite
@@ -75,13 +85,17 @@ export function calculateSphereSurfacePositions({startPosition={x:0, y:0, z:0}, 
  */
 export function rotateVector({vector, axisVector, degrees}){
   let radians = convertDegreesToRadians(degrees);
+
   let normalizedAxisVector = normalizeVector(axisVector);//n hat
+  //let normalizedAxisVector = new Vector3(axisVector.x, axisVector.y, axisVector.z).normalize();  <-- doesnt fix issue
+
   //for a right triangle, what is the ratio of adjacent side to the hypotenuse side.
   let cosRadians = Math.cos(radians);
   //for a right triangle, what is the ratio of opposite side to the hypotenuse side.
   let sinRadians = Math.sin(radians);
 
   let vectorThatIsOrthogonalToNormalizedAxisVectorAndVector = calculateCrossProduct({vector1: normalizedAxisVector, vector2: vector});
+
 
   let vectorScaledByCosRadian = multiplyVectorByScalar({vector, scalar: cosRadians});
   let orthagonalVectorScaledBySinRadians = multiplyVectorByScalar({vector: vectorThatIsOrthogonalToNormalizedAxisVectorAndVector, scalar: sinRadians});
@@ -124,12 +138,12 @@ function calculateCrossProduct({vector1, vector2}){
   let y = (a3 * b1) - (a1 * b3);
   let z = (a1 * b2) - (a2 * b1);
 
-  return {x, y, z};
+  return {x, y, z};  //
 }
 
 //finds the unit vector/vector normal. i.e. n hat
 function normalizeVector({x, y, z}){
-  let vectorLength = calculateVectorLength({x, y, z});
+  let vectorLength = calculateVectorLengthAKAMagnitude({x, y, z});
   let unitVector = {
     x: x / vectorLength,
     y: y / vectorLength,
@@ -138,7 +152,17 @@ function normalizeVector({x, y, z}){
   return unitVector;
 }
 
-function calculateVectorLength({x, y, z}){
+/**
+ * The magnitude, or length of a vector is denoted by two vertical stripes on either side of the vector: |V|.
+ * It can be calculated with Pythagoras' theorem. For those of you that don't know or forgot it:
+ * |V| = square-root ((Vx)2 + (Vy)2 + (Vz)2)
+ * A vector with magnitude 1 is called a unit vector
+ * @param x
+ * @param y
+ * @param z
+ * @returns {number}
+ */
+function calculateVectorLengthAKAMagnitude({x, y, z}){
   let xPow2 = Math.pow(x, 2);
   let yPow2 = Math.pow(y, 2);
   let zPow2 = Math.pow(z, 2);

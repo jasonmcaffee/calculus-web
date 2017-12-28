@@ -1,4 +1,4 @@
-import {BoxGeometry, CubeGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3, Texture, MirroredRepeatWrapping, Vector3, Clock, AudioLoader, PositionalAudio, AudioListener} from 'three';
+import {Line, LineBasicMaterial, Geometry, BoxGeometry, CubeGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3, Texture, MirroredRepeatWrapping, Vector3, Clock, AudioLoader, PositionalAudio, AudioListener} from 'three';
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn} from "core/core";
 import SpaceDrone from 'components/SpaceDrone';
 import {calculateSphereSurfacePositions, rotateVector} from 'services/mathService';
@@ -181,9 +181,11 @@ export default class SpaceDroneCloud {
     this.rotateDrones();
   }
 
-  rotateDrones({droneComponents=this.droneComponents, degrees=1, axisVector={x:0, y:1, z:0} } ={}){
+  rotateDrones({droneComponents=this.droneComponents, degrees=10, axisVector={x:0, y:1, z:0} } ={}){
     axisVector = this.positionVector.clone();
-    //axisVector.z += 1;
+    // axisVector.y += 1;
+    //axisVector.normalize();
+    //axisVector.y += 1;
 
     for(let i = 0, len=droneComponents.length; i < len; ++i){
       let drone = droneComponents[i];
@@ -200,7 +202,7 @@ export default class SpaceDroneCloud {
     let {x, y, z} = endPosition;
    // signal.trigger(ec.component.setPosition, {componentId, x, y, z});
     drone.setPosition({x, y, z});
-    console.log(`new position: x: ${x}  y: ${y}  z: ${z}`);
+    //console.log(`new position: x: ${x}  y: ${y}  z: ${z}`);
   }
 
   //when we run into something.
@@ -218,6 +220,11 @@ export default class SpaceDroneCloud {
   addToScene({scene}) {
     //this.droneComponents.forEach(d=>d.addToScene({scene}));
     this.droneComponents.forEach(d=>signal.trigger(ec.stage.addComponent, {component:d}));
+    let {x: x2, y: y2, z: z2} = this.positionVector;
+
+    //debug rotation issue
+    let line = createLine({x:0, y:0, z:0, x2, y2, z2});
+    scene.add(line);
   }
 
 
@@ -228,4 +235,14 @@ export default class SpaceDroneCloud {
     this.droneComponents.forEach(d=>d.destroy({scene}));
   }
 
+}
+
+
+function createLine({x=0, y=0, z=0, x2=0, y2=0, z2=0, material=new LineBasicMaterial({color:0x4286f4})}={}){
+  let geometry = new Geometry();
+  geometry.vertices.push(new Vector3(x, y, z));
+  geometry.vertices.push(new Vector3(x2, y2, z2));
+  let line = new Line(geometry, material);
+  line.name = generateUniqueId({name:'line'});
+  return line;
 }
