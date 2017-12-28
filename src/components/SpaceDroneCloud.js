@@ -21,11 +21,17 @@ export default class SpaceDroneCloud {
   moveDistancePerSecond = 0
   constructor({numberOfDronesToCreate=10, x = grn({min, max}), y = grn({min, max}), z = grn({min, max}), hitPoints=1, bulletDistancePerSecond=150, moveDistancePerSecond=12, damage=0.2, excludedTargetComponentIds=[], droneSizeRadius=.5} = {}) {
     this.excludedTargetComponentIds = excludedTargetComponentIds;
+
     this.positionVector = new Vector3(x, y, z);
+    this.radius = droneSizeRadius * 2 * numberOfDronesToCreate;
+
     this.droneComponents = this.createDrones({numberOfDronesToCreate, droneSizeRadius, excludedTargetComponentIds});
     this.droneSizeRadius = droneSizeRadius;
     this.excludedTargetComponentIds = excludedTargetComponentIds;
     this.moveDistancePerSecond = moveDistancePerSecond;
+
+
+    this.setDroneRotationAxisVector(); //we want drones to orbit around this
 
     signal.registerSignals(this);
 
@@ -94,12 +100,12 @@ export default class SpaceDroneCloud {
     droneComponents.splice(index, 1);
   }
 
-  formDronesIntoACircle({droneComponents=this.droneComponents, startPosition=this.positionVector, droneSizeRadius=this.droneSizeRadius}={}){
+  formDronesIntoACircle({droneComponents=this.droneComponents, startPosition=this.positionVector, droneSizeRadius=this.droneSizeRadius, radius=this.radius}={}){
     let numberOfDrones = droneComponents.length;
     if(numberOfDrones <= 0){return;}
 
     //calculate new positions
-    let radius = droneSizeRadius * 2 * numberOfDrones;
+    //let radius = droneSizeRadius * 2 * numberOfDrones;
     let positions = calculateSphereSurfacePositions({startPosition, radius, degreeIncrement: 360 / numberOfDrones, flatX:true});
     if(positions.length != numberOfDrones){
       console.error(`positions dont match number of drones.`);
@@ -157,14 +163,28 @@ export default class SpaceDroneCloud {
     return {nearestTargetVector, nearestComponentId};
   }
 
-  createLinePointingStraightUp({startPosition=this.positionVector, lineLength=100} = {}){
-    let direction = new Vector3();
-    let straightUpVector = new Vector3(startPosition.x, startPosition.y +100, startPosition.z);
-    direction.subVectors(straightUpVector, startPosition);
+  /**
+   * in order to rotate the drone position vector, we need to create an axis vector to rotate them around.
+   * this function will set the this.droneRotationAxisVector property.
+   * current implementation is a y-axis vector (i.e. drones rotate around y)
+   * @param startPosition
+   * @param axisLength
+   */
+  setDroneRotationAxisVector({startPosition=this.positionVector, axisLength=10} ={}){
+    let straightUpVector = new Vector3(startPosition.x, startPosition.y + axisLength, startPosition.z);
+    this.droneRotationAxisVector = straightUpVector;
+    // this.droneRotationAxisVector = direction;
+  }
 
-    let distance = lineLength;
-    let endPosition = direction.multiplyScalar(distance);
-
+  //debugging purposes.
+  createLineForDroneRotationAxisVector({startPosition=this.positionVector, lineLength=100, droneRotationAxisVector=this.droneRotationAxisVector} = {}){
+    // let direction = new Vector3();
+    // let straightUpVector = new Vector3(startPosition.x, startPosition.y +100, startPosition.z);
+    // direction.subVectors(straightUpVector, startPosition);
+    //
+    // let distance = lineLength;
+    // let endPosition = direction.multiplyScalar(distance);
+    let endPosition = droneRotationAxisVector;
     let {x, y, z} = startPosition;
     let {x: x2, y: y2, z: z2} = endPosition;
 
@@ -247,7 +267,7 @@ export default class SpaceDroneCloud {
     let positionLine = createLine({x:0, y:0, z:0, x2, y2, z2});
     scene.add(positionLine);
 
-    let straightUpLine = this.createLinePointingStraightUp();
+    let straightUpLine = this.createLineForDroneRotationAxisVector();
     scene.add(straightUpLine);
   }
 
