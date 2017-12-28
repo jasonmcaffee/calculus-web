@@ -86,13 +86,17 @@ export default class SpaceDrone {
     threejsObject.add(this.trexRoarAudio);
   }
 
+  setPosition({x, y, z}){
+    this.threejsObject.position.set(x, y, z);
+    this.hitBox = new Box3().setFromObject(this.threejsObject);
+    signal.trigger(ec.hitTest.updateComponentHitBox, {component:this});
+  }
+
   signals = {
     //used when we disable following targets. drone cloud will fire this event.
     [ec.component.setPosition]({componentId, x, y, z}){
       if(this.componentId !== componentId){return;}
-      this.threejsObject.position.set(x, y, z);
-      this.hitBox = new Box3().setFromObject(this.threejsObject);
-      signal.trigger(ec.hitTest.updateComponentHitBox, {component:this});
+      this.setPosition({x, y, z});
     },
     [ec.hitTest.hitComponent]({hitComponent, damage=0}) {
       let componentId = hitComponent.componentId;

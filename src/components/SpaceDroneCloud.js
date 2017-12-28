@@ -181,10 +181,9 @@ export default class SpaceDroneCloud {
     this.rotateDrones();
   }
 
-  rotateDrones({droneComponents=this.droneComponents, degrees=1, axisVector={x:0, y:0, z:1} } ={}){
-    // axisVector = this.positionVector.clone();
-    // axisVector.normalize();
-    // axisVector.y +=10;
+  rotateDrones({droneComponents=this.droneComponents, degrees=1, axisVector={x:0, y:1, z:0} } ={}){
+    axisVector = this.positionVector.clone();
+    //axisVector.z += 1;
 
     for(let i = 0, len=droneComponents.length; i < len; ++i){
       let drone = droneComponents[i];
@@ -196,10 +195,12 @@ export default class SpaceDroneCloud {
 
   rotateDrone({drone, degrees=1, axisVector={x:0, y:1, z:0} } ={}){
     let componentId = drone.componentId;
-    let startPosition = drone.threejsObject.position;
+    let startPosition = drone.threejsObject.position;//<--- this seems wrong. should be fixed point?
     let endPosition = rotateVector({vector: startPosition, axisVector, degrees});
     let {x, y, z} = endPosition;
-    signal.trigger(ec.component.setPosition, {componentId, x, y, z});
+   // signal.trigger(ec.component.setPosition, {componentId, x, y, z});
+    drone.setPosition({x, y, z});
+    console.log(`new position: x: ${x}  y: ${y}  z: ${z}`);
   }
 
   //when we run into something.
