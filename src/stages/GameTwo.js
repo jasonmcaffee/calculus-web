@@ -64,7 +64,7 @@ export default class SaveUranus{
     createRandomAsteroids({centerPosition:moonPosition, numberToCreate:3000, radius: 100});
 
 
-    let component = new Floor({numberOfLines:0, distanceBetweenLines:100});
+    let component = new Floor({numberOfLines:100, distanceBetweenLines:10});
     signal.trigger(ec.stage.addComponent, {component});
 
     //this.addEnemyAndRegisterWithStage(new TysonsMom({hitPoints:100, x:5.3, y: 56, z:8.6}));
@@ -79,7 +79,7 @@ export default class SaveUranus{
 
     //this.addEnemyAndRegisterWithStage(new SpaceDrone({x:5.3, y: 56, z:8.6, excludedTargetComponentIds:[playerComponent.componentId, earthComponent.componentId]}))
     // let spaceDroneCloudComponent = new SpaceDroneCloud({x:5.3, y: 56, z:8.6, excludedTargetComponentIds:[ earthComponent.componentId]}); //playerComponent.componentId,
-    let spaceDroneCloudComponent = new SpaceDroneCloud({x: -153, y:158, z:40, excludedTargetComponentIds:[ earthComponent.componentId]}); //playerComponent.componentId,
+    let spaceDroneCloudComponent = new SpaceDroneCloud({x: 0, y:20, z:0, excludedTargetComponentIds:[ earthComponent.componentId]}); //playerComponent.componentId,
     signal.trigger(ec.stage.addComponent, {component: spaceDroneCloudComponent});
     this.enemies.push(...spaceDroneCloudComponent.droneComponents);
 

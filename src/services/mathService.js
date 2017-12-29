@@ -87,23 +87,44 @@ export function rotateVector({vector, axisVector, degrees}){
   let radians = convertDegreesToRadians(degrees);
 
   let normalizedAxisVector = normalizeVector(axisVector);//n hat
-  //let normalizedAxisVector = new Vector3(axisVector.x, axisVector.y, axisVector.z).normalize();  <-- doesnt fix issue
+  ensureVectorPrecision({vector:normalizedAxisVector});
+
+  //let normalizedAxisVector = new Vector3(axisVector.x, axisVector.y, axisVector.z).normalize();//  <-- doesnt fix issue
 
   //for a right triangle, what is the ratio of adjacent side to the hypotenuse side.
-  let cosRadians = Math.cos(radians);
-  cosRadians = cosRadians.toPrecision(10);
+  let cosRadians = round( Math.cos(radians) );
 
   //for a right triangle, what is the ratio of opposite side to the hypotenuse side.
-  let sinRadians = Math.sin(radians);
+  let sinRadians = round( Math.sin(radians) );
+
 
   let vectorThatIsOrthogonalToNormalizedAxisVectorAndVector = calculateCrossProduct({vector1: normalizedAxisVector, vector2: vector});
-
+  ensureVectorPrecision({vector:vectorThatIsOrthogonalToNormalizedAxisVectorAndVector});
 
   let vectorScaledByCosRadian = multiplyVectorByScalar({vector, scalar: cosRadians});
+  ensureVectorPrecision({vector: vectorScaledByCosRadian});
+
   let orthagonalVectorScaledBySinRadians = multiplyVectorByScalar({vector: vectorThatIsOrthogonalToNormalizedAxisVectorAndVector, scalar: sinRadians});
+  ensureVectorPrecision({vector: orthagonalVectorScaledBySinRadians});
 
   let vectorPrime = addVectors(({vector1: vectorScaledByCosRadian, vector2: orthagonalVectorScaledBySinRadians}));
+  ensureVectorPrecision({vector:vectorPrime});
   return vectorPrime;
+}
+
+function ensureVectorPrecision({vector, precision=5}){
+  vector.x = round(vector.x, precision);
+  vector.y = round(vector.y, precision);
+  vector.z = round(vector.z, precision);
+}
+
+//round(1234.5678, 1); // 1234.6
+//round(1234.5678, -1); // 1230
+function round(number, precision=5) {
+  var factor = Math.pow(10, precision);
+  var tempNumber = number * factor;
+  var roundedTempNumber = Math.round(tempNumber);
+  return roundedTempNumber / factor;
 }
 
 function addVectors({vector1, vector2}){
