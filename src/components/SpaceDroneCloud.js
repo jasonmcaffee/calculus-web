@@ -238,7 +238,7 @@ export default class SpaceDroneCloud {
 
     for(let i = 0, len=droneComponents.length; i < len; ++i){
       let drone = droneComponents[i];
-      if(i>0){return;}//debug
+      //if(i>1){return;}//debug
       this.rotateDrone({drone, degrees, axisVector});
 
     }
