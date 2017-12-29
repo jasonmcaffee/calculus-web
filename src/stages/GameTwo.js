@@ -79,7 +79,7 @@ export default class SaveUranus{
 
     //this.addEnemyAndRegisterWithStage(new SpaceDrone({x:5.3, y: 56, z:8.6, excludedTargetComponentIds:[playerComponent.componentId, earthComponent.componentId]}))
     // let spaceDroneCloudComponent = new SpaceDroneCloud({x:5.3, y: 56, z:8.6, excludedTargetComponentIds:[ earthComponent.componentId]}); //playerComponent.componentId,
-    let spaceDroneCloudComponent = new SpaceDroneCloud({x: 0, y:20, z:0, excludedTargetComponentIds:[ earthComponent.componentId]}); //playerComponent.componentId,
+    let spaceDroneCloudComponent = new SpaceDroneCloud({x: 0, y:0, z:0, excludedTargetComponentIds:[ earthComponent.componentId]}); //playerComponent.componentId,
     signal.trigger(ec.stage.addComponent, {component: spaceDroneCloudComponent});
     this.enemies.push(...spaceDroneCloudComponent.droneComponents);
 

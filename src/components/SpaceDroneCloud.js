@@ -23,15 +23,22 @@ export default class SpaceDroneCloud {
     this.excludedTargetComponentIds = excludedTargetComponentIds;
 
     this.positionVector = new Vector3(x, y, z);
-    this.radius = droneSizeRadius * 2 * numberOfDronesToCreate;
+    this.radius = droneSizeRadius * numberOfDronesToCreate * 2;
 
-    this.droneComponents = this.createDrones({numberOfDronesToCreate, droneSizeRadius, excludedTargetComponentIds});
     this.droneSizeRadius = droneSizeRadius;
     this.excludedTargetComponentIds = excludedTargetComponentIds;
     this.moveDistancePerSecond = moveDistancePerSecond;
-
-
     this.setDroneRotationAxisVector(); //we want drones to orbit around this
+
+
+    this.droneComponents = this.createDrones({numberOfDronesToCreate, droneSizeRadius, excludedTargetComponentIds});
+
+
+
+    //debug
+    let lastDrone = this.droneComponents[numberOfDronesToCreate-1];
+    signal.trigger(ec.component.setPosition, {componentId:lastDrone.componentId, x,y,z});
+
 
     signal.registerSignals(this);
 
@@ -121,9 +128,10 @@ export default class SpaceDroneCloud {
     }
   }
 
-  createDrones({startPosition=this.positionVector, numberOfDronesToCreate, hitPoints=1, bulletDistancePerSecond=150, moveDistancePerSecond=12, damage=0.2, excludedTargetComponentIds=[], droneSizeRadius=2, handleHitTestResults=false}){
+  createDrones({startPosition=this.positionVector, numberOfDronesToCreate, hitPoints=1, bulletDistancePerSecond=150, moveDistancePerSecond=12, damage=0.2,
+                 excludedTargetComponentIds=[], droneSizeRadius=2, handleHitTestResults=false, radius=this.radius}){
     //first create their positions
-    let radius = droneSizeRadius * 2 * numberOfDronesToCreate;
+    //let radius = droneSizeRadius * 2 * numberOfDronesToCreate;
     let positions = calculateSphereSurfacePositions({startPosition, radius, degreeIncrement: 360 / numberOfDronesToCreate, flatX:true});
     let drones = positions.map( ({x, y, z})=> this.createDrone({x, y, z, hitPoints, bulletDistancePerSecond, moveDistancePerSecond, damage, excludedTargetComponentIds, handleHitTestResults}) );
     return drones;
