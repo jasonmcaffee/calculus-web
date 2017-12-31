@@ -1,7 +1,7 @@
 import {Line, LineBasicMaterial, Geometry, BoxGeometry, CubeGeometry, MeshNormalMaterial, MeshLambertMaterial, Mesh, Box3, Texture, MirroredRepeatWrapping, Vector3, Clock, AudioLoader, PositionalAudio, AudioListener} from 'three';
 import {signal, eventConfig as ec, generateUniqueId, generateRandomNumber as grn} from "core/core";
 import SpaceDrone from 'components/SpaceDrone';
-import {calculateSphereSurfacePositions, rotateVector} from 'services/mathService';
+import {calculateSphereSurfacePositions, rotateVector, rotateVectorAroundYAxis} from 'services/mathService';
 /*
   Cloud of space drones that form different shapes.
   Rectangle, circle, diamond, where each shape represents a level of difficulty in defeating.
@@ -226,8 +226,12 @@ export default class SpaceDroneCloud {
    // this.followNearestTarget();
     this.rotateDrones();
   }
-
-  rotateDrones({droneComponents=this.droneComponents, degrees=-2, axisVector=this.droneRotationAxisVector } ={}){
+  degrees=0
+  rotateDrones({droneComponents=this.droneComponents, axisVector=this.positionVector} ={}){
+    // let degreeIncrement = .01;
+    // this.degrees += degreeIncrement;
+    // let degrees=this.degrees%360
+    let degrees = 1;
     // axisVector.y += this.positionVector.y;
     // axisVector.z += this.positionVector.z;
     // axisVector.x += this.positionVector.x;
@@ -244,10 +248,14 @@ export default class SpaceDroneCloud {
     }
   }
 
-  rotateDrone({drone, degrees=1, axisVector=this.droneRotationAxisVector } ={}){
+  rotateDrone({drone, degrees=1, axisVector=this.positionVector } ={}){
     let componentId = drone.componentId;
     let startPosition = drone.threejsObject.position;//<--- this seems wrong. should be fixed point?
-    let endPosition = rotateVector({vector: startPosition, axisVector, degrees});
+    // if(!drone.startPosition){
+    //   drone.startPosition = startPosition;
+    // }
+    //let endPosition = rotateVector({vector: startPosition, axisVector, degrees});
+    let endPosition = rotateVectorAroundYAxis({vector: startPosition, degrees, axisVector});
    // startPosition.add(endPosition);
     let {x, y, z} = endPosition;
     //console.log(`new position: x: ${x}  y: ${y}  z: ${z}`);

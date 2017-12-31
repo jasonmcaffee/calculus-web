@@ -66,6 +66,19 @@ export function rotateVectorViaRotationMatrix(){
 
 }
 
+//https://www.cs.helsinki.fi/group/goa/mallinnus/3dtransf/3drot.html#Y-Axis Rotation
+export function rotateVectorAroundYAxis({vector, degrees, axisVector={x:0, y:0, z:0}}){
+  let transformedVector = subtractVectors({vector1: vector, vector2:axisVector});
+  let radians = convertDegreesToRadians(degrees);
+  let {x, y, z} = transformedVector;
+  let rotationResultVector = {
+    x: z * Math.sin(radians) + x * Math.cos(radians), //x' = z*sin q + x*cos q
+    y,
+    z: z * Math.cos(radians) - x * Math.sin(radians) //z' = z*cos q - x*sin q
+  };
+  let newPosition = addVectors({vector1: axisVector, vector2:rotationResultVector});
+  return newPosition;
+}
 
 /**
  * https://jsfiddle.net/b3jb5uy5/2/
@@ -137,6 +150,16 @@ function addVectors({vector1, vector2}){
   };
 }
 
+function subtractVectors({vector1, vector2}){
+  let {x: x1, y: y1, z: z1} = vector1;
+  let {x: x2, y: y2, z: z2} = vector2;
+  return {
+    x: x1 - x2,
+    y: y1 - y2,
+    z: z1 - z2,
+  };
+}
+
 function multiplyVectorByScalar({vector, scalar}){
   let {x, y, z} = vector;
   return {
@@ -165,13 +188,16 @@ function calculateCrossProduct({vector1, vector2}){
 }
 
 //finds the unit vector/vector normal. i.e. n hat
-function normalizeVector({x, y, z}){
+function normalizeVector({x, y, z, w}){
   let vectorLength = calculateVectorLengthAKAMagnitude({x, y, z});
   let unitVector = {
     x: x / vectorLength,
     y: y / vectorLength,
     z: z / vectorLength,
   };
+  if(w != undefined){
+    unitVector.w = w / vectorLength;
+  }
   return unitVector;
 }
 
