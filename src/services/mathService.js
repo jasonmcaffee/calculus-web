@@ -62,8 +62,21 @@ export function calculateSphereSurfacePositions({startPosition={x:0, y:0, z:0}, 
   return spherePositions;
 }
 
-export function rotateVectorViaRotationMatrix(){
-
+/**
+ * Useful for rotating an object towards a vector.
+ * e.g. drone cloud rotating towards player would first find the degrees between center position and player position, then rotateVectorAroundYAxis.
+ * @param vector1
+ * @param vector2
+ * @returns {number} - degrees between vector1 and vector2
+ */
+export function findAngleInDegreesBetweenVectors({vector1={x:0, y:0, z:0}, vector2={x:0, y:0, z:0}}){
+  let vector1Length = calculateVectorLengthAKAMagnitude(vector1);
+  let vector2Length = calculateVectorLengthAKAMagnitude(vector2);
+  let dotProduct = calculateDotProduct({vector1, vector2});
+  let cosTheta = dotProduct / (vector1Length * vector2Length);
+  let angleInRadians = Math.acos(cosTheta);
+  let angleInDegrees = convertRadiansToDegrees(angleInRadians);
+  return angleInDegrees;
 }
 
 //https://www.cs.helsinki.fi/group/goa/mallinnus/3dtransf/3drot.html#Y-Axis Rotation
@@ -185,6 +198,23 @@ function calculateCrossProduct({vector1, vector2}){
   let z = (a1 * b2) - (a2 * b1);
 
   return {x, y, z};  //
+}
+
+/**
+ * In Euclidean geometry, the dot product of the Cartesian coordinates of two vectors is widely used and often called inner product (or rarely projection product)
+ * Geometrically, it is the product of the Euclidean magnitudes of the two vectors and the cosine of the angle between them.
+ * These definitions are equivalent when using Cartesian coordinates. In modern geometry, Euclidean spaces are often defined by using vector spaces.
+ * In this case, the dot product is used for defining lengths (the length of a vector is the square root of the dot product of the vector by itself)
+ * and angles (the cosine of the angle of two vectors is the quotient of their dot product by the product of their lengths).
+ * @param vector1
+ * @param vector2
+ * @returns {number}
+ */
+function calculateDotProduct({vector1={x:0, y:0, z:0}, vector2={x:0, y:0, z:0}}){
+  let {x:x1, y:y1, z:z1} = vector1;
+  let {x:x2, y:y2, z:z2} = vector2;
+  let dotProduct = x1 * x2 + y1 * y2 + z1 * z2;
+  return dotProduct;
 }
 
 //finds the unit vector/vector normal. i.e. n hat
